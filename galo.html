@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VR КЛУБ ГАЛО — виртуальная реальность в городе</title>
+<meta name="description" content="VR клуб ГАЛО — сессии на Meta Quest 2 и Quest 3. От 300 рублей. Работаем без выходных 10:00–19:00.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#040404;
+    --void-2:#0a0a0b;
+    --panel:#0e0e10;
+    --line:#1c1416;
+    --red:#e60815;
+    --red-bright:#ff2330;
+    --red-deep:#5e0307;
+    --red-dim:#7a0a10;
+    --ink:#f4f2f2;
+    --muted:#8a8284;
+    --muted-2:#5a5456;
+    --glow:rgba(230,8,21,.55);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+
+  body{
+    background:var(--void);
+    color:var(--ink);
+    font-family:'Manrope',system-ui,sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{background:var(--red);color:#000}
+
+  /* ===== ambient CRT scanlines over whole page ===== */
+  .crt{
+    position:fixed;inset:0;z-index:9000;pointer-events:none;
+    background:repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,.16) 3px,
+      rgba(0,0,0,.16) 4px
+    );
+    mix-blend-mode:multiply;
+    animation:flick 7s steps(60) infinite;
+  }
+  .crt::after{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(0,0,0,.55) 100%);
+  }
+  @keyframes flick{
+    0%,96%,100%{opacity:.9}
+    97%{opacity:.7}
+    98%{opacity:1}
+    99%{opacity:.82}
+  }
+
+  /* ===== signature: scanline letterforms ===== */
+  .scan{
+    font-family:'Oswald',sans-serif;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--red);
+    letter-spacing:.01em;
+    position:relative;
+    display:inline-block;
+    text-shadow:0 0 28px rgba(230,8,21,.35);
+  }
+  .scan::after{
+    content:"";position:absolute;inset:-2% -1%;pointer-events:none;
+    background:repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 3px,
+      rgba(4,4,4,.92) 3px,
+      rgba(4,4,4,.92) 6px
+    );
+  }
+
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+
+  /* ===== nav ===== */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:8000;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;
+    background:linear-gradient(180deg,rgba(4,4,4,.92),rgba(4,4,4,.4) 70%,transparent);
+    backdrop-filter:blur(4px);
+  }
+  .brand{
+    font-family:'Oswald',sans-serif;font-weight:700;font-size:1.5rem;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--ink);
+    display:flex;align-items:center;gap:10px;text-decoration:none;
+  }
+  .brand .dot{width:11px;height:11px;background:var(--red);border-radius:50%;box-shadow:0 0 14px var(--glow);animation:pulse 2.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .brand b{color:var(--red)}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:500;
+    font-size:.82rem;letter-spacing:.14em;color:var(--muted);text-decoration:none;
+    transition:color .2s;
+  }
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:600;
+    font-size:.82rem;letter-spacing:.12em;
+    padding:11px 20px;border:1px solid var(--red);color:var(--ink);
+    text-decoration:none;background:transparent;transition:.2s;
+    clip-path:polygon(0 0,100% 0,100% 70%,calc(100% - 12px) 100%,0 100%);
+  }
+  .nav-cta:hover{background:var(--red);box-shadow:0 0 24px var(--glow)}
+  .burger{display:none;background:none;border:0;cursor:pointer;flex-direction:column;gap:5px}
+  .burger span{width:26px;height:2px;background:var(--ink);display:block}
+
+  /* ===== hero ===== */
+  .hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden}
+  .hero-grid{
+    position:absolute;inset:0;z-index:0;
+    background:
+      linear-gradient(transparent 0,transparent calc(100% - 1px),rgba(230,8,21,.05) 100%),
+      linear-gradient(90deg,transparent 0,transparent calc(100% - 1px),rgba(230,8,21,.05) 100%);
+    background-size:64px 64px;
+    mask-image:radial-gradient(ellipse at 30% 50%,#000 10%,transparent 75%);
+  }
+  .hero-fig{
+    position:absolute;right:-4%;bottom:0;height:96%;width:auto;z-index:1;
+    filter:drop-shadow(0 0 60px rgba(230,8,21,.4));
+    opacity:.95;
+  }
+  .hero-inner{position:relative;z-index:2;width:100%;padding-top:80px}
+  .eyebrow{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:500;
+    letter-spacing:.42em;font-size:.78rem;color:var(--red);margin-bottom:22px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .eyebrow::before{content:"";width:42px;height:1px;background:var(--red);display:inline-block}
+
+  h1.title{line-height:.84;margin-bottom:30px}
+  h1.title .l1{display:block;font-size:clamp(1.6rem,4.5vw,3.4rem);color:var(--ink);
+    font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  h1.title .l2{font-size:clamp(5.5rem,21vw,16rem)}
+
+  .lede{max-width:440px;color:var(--muted);font-size:1.06rem;margin-bottom:36px}
+  .lede b{color:var(--ink);font-weight:600}
+
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .btn{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:600;
+    letter-spacing:.1em;font-size:.95rem;text-decoration:none;cursor:pointer;
+    padding:16px 30px;display:inline-flex;align-items:center;gap:10px;transition:.2s;border:0;
+  }
+  .btn-primary{
+    background:var(--red);color:#0a0000;
+    clip-path:polygon(0 0,100% 0,100% 68%,calc(100% - 16px) 100%,0 100%);
+    box-shadow:0 0 0 rgba(230,8,21,0);
+  }
+  .btn-primary:hover{background:var(--red-bright);box-shadow:0 0 34px var(--glow);transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--red);color:var(--red)}
+
+  /* ===== ticker ===== */
+  .ticker{
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:var(--void-2);overflow:hidden;white-space:nowrap;padding:14px 0;
+  }
+  .ticker-row{display:inline-block;animation:slide 26s linear infinite}
+  .ticker-row span{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:600;
+    letter-spacing:.16em;font-size:.92rem;color:var(--muted);margin:0 26px;
+  }
+  .ticker-row span i{color:var(--red);font-style:normal}
+  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ===== section frame ===== */
+  section.block{padding:120px 0;position:relative}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:60px;flex-wrap:wrap}
+  .sec-tag{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.3em;
+    font-size:.74rem;color:var(--red);font-weight:500;
+  }
+  h2.sec-title{
+    font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:700;
+    font-size:clamp(2.4rem,6vw,4.4rem);line-height:.92;color:var(--ink);letter-spacing:.01em;
+  }
+  h2.sec-title em{color:var(--red);font-style:normal}
+  .sec-note{color:var(--muted);max-width:300px;font-size:.96rem;text-align:right}
+
+  /* ===== about / features ===== */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+  .feat{background:var(--void);padding:38px 32px;transition:background .25s}
+  .feat:hover{background:var(--panel)}
+  .feat .num{font-family:'Oswald',sans-serif;color:var(--red-dim);font-weight:700;font-size:.9rem;letter-spacing:.1em}
+  .feat h3{font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:600;font-size:1.4rem;margin:16px 0 12px;letter-spacing:.02em}
+  .feat p{color:var(--muted);font-size:.96rem}
+
+  /* ===== games ===== */
+  .games{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .game{
+    position:relative;border:1px solid var(--line);background:var(--void-2);
+    aspect-ratio:3/4;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;
+    padding:22px;transition:.3s;
+  }
+  .game::before{
+    content:"";position:absolute;inset:0;z-index:0;opacity:.5;transition:.3s;
+    background:radial-gradient(circle at 50% 25%,var(--red-deep),transparent 60%);
+  }
+  .game:hover{border-color:var(--red);transform:translateY(-4px)}
+  .game:hover::before{opacity:1}
+  .game .g-ico{position:absolute;top:20px;left:20px;z-index:1;color:var(--red);opacity:.85}
+  .game .g-meta{position:relative;z-index:1}
+  .game .g-tag{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:.68rem;letter-spacing:.2em;color:var(--red);font-weight:500}
+  .game h3{font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:700;font-size:1.35rem;margin-top:6px;line-height:1}
+  .game p{color:var(--muted);font-size:.84rem;margin-top:8px}
+
+  /* ===== prices ===== */
+  .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .price-card{
+    border:1px solid var(--line);background:var(--void-2);padding:0;overflow:hidden;position:relative;
+    transition:.3s;
+  }
+  .price-card.featured{border-color:var(--red)}
+  .price-card.featured::after{
+    content:"ХИТ";position:absolute;top:26px;right:-34px;transform:rotate(45deg);
+    background:var(--red);color:#000;font-family:'Oswald',sans-serif;font-weight:700;
+    font-size:.72rem;letter-spacing:.2em;padding:5px 40px;
+  }
+  .price-head{padding:30px 34px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px}
+  .price-head svg{color:var(--red);flex-shrink:0}
+  .price-head .ph-name{font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:700;font-size:1.7rem;line-height:1}
+  .price-head .ph-sub{color:var(--muted);font-size:.82rem;margin-top:4px}
+  .price-rows{padding:14px 34px 30px}
+  .prow{display:flex;align-items:baseline;justify-content:space-between;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .prow:last-child{border-bottom:0}
+  .prow .dur{font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:500;font-size:1.05rem;letter-spacing:.04em}
+  .prow .dur span{color:var(--muted);font-size:.78rem;margin-left:8px;letter-spacing:.1em}
+  .prow .cost{font-family:'Oswald',sans-serif;font-weight:700;font-size:1.6rem;color:var(--red)}
+  .prow .cost small{color:var(--muted);font-weight:400;font-size:.8rem;margin-left:4px}
+  .price-foot{padding:0 34px 32px}
+  .price-foot .btn{width:100%;justify-content:center}
+
+  /* ===== hours / contact split ===== */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .panel-card{border:1px solid var(--line);background:var(--void-2);padding:48px 44px;position:relative;overflow:hidden}
+  .panel-card .corner{position:absolute;top:0;right:0;width:60px;height:60px;border-top:2px solid var(--red);border-right:2px solid var(--red);opacity:.6}
+  .hours-label{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.3em;font-size:.74rem;color:var(--red);margin-bottom:24px}
+  .hours-big{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(2.6rem,7vw,4.2rem);line-height:.9;text-transform:uppercase}
+  .hours-big em{color:var(--red);font-style:normal;display:block}
+  .hours-row{display:flex;align-items:center;gap:14px;margin-top:28px;color:var(--muted)}
+  .hours-row .live{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 12px var(--glow);animation:pulse 2.2s infinite}
+
+  .contact-list{list-style:none;margin-top:8px}
+  .contact-list li{display:flex;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+  .contact-list li:last-child{border-bottom:0}
+  .contact-list svg{color:var(--red);flex-shrink:0}
+  .contact-list .c-k{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:.7rem;letter-spacing:.2em;color:var(--muted-2)}
+  .contact-list .c-v{font-size:1.05rem;color:var(--ink);text-decoration:none}
+  .contact-list a.c-v:hover{color:var(--red)}
+
+  /* ===== CTA band ===== */
+  .cta-band{position:relative;padding:110px 0;text-align:center;overflow:hidden;border-top:1px solid var(--line)}
+  .cta-band .scan-bg{
+    position:absolute;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;
+    font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;
+    font-size:clamp(6rem,26vw,22rem);color:var(--red-deep);opacity:.16;white-space:nowrap;letter-spacing:-.02em;
+  }
+  .cta-inner{position:relative;z-index:1}
+  .cta-inner h2{font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:700;font-size:clamp(2.2rem,6vw,4rem);line-height:.95;margin-bottom:18px}
+  .cta-inner h2 em{color:var(--red);font-style:normal}
+  .cta-inner p{color:var(--muted);max-width:480px;margin:0 auto 34px}
+
+  /* ===== footer ===== */
+  footer{border-top:1px solid var(--line);padding:46px 0;background:var(--void)}
+  .foot-grid{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .foot-grid .brand{font-size:1.2rem}
+  .foot-links{display:flex;gap:24px}
+  .foot-links a{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:.78rem;letter-spacing:.12em;color:var(--muted);text-decoration:none}
+  .foot-links a:hover{color:var(--red)}
+  .copy{color:var(--muted-2);font-size:.82rem;width:100%;border-top:1px solid var(--line);margin-top:34px;padding-top:24px}
+
+  /* ===== reveal ===== */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ===== responsive ===== */
+  @media(max-width:980px){
+    .games{grid-template-columns:repeat(2,1fr)}
+    .feat-grid{grid-template-columns:1fr}
+    .hero-fig{opacity:.28;right:-15%}
+  }
+  @media(max-width:760px){
+    .nav-links,.nav-cta{display:none}
+    .burger{display:flex}
+    nav.open .nav-links{
+      display:flex;flex-direction:column;position:absolute;top:100%;left:0;right:0;
+      background:var(--void-2);padding:24px 28px;gap:20px;border-bottom:1px solid var(--line);
+    }
+    .price-grid,.split{grid-template-columns:1fr}
+    .sec-note{text-align:left;max-width:none}
+    .sec-head{flex-direction:column;align-items:flex-start}
+    section.block{padding:84px 0}
+    .lede{max-width:none}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    html{scroll-behavior:auto}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="crt" aria-hidden="true"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#top" class="brand"><span class="dot"></span>VR&nbsp;<b>ГАЛО</b></a>
+  <div class="nav-links">
+    <a href="#about">О клубе</a>
+    <a href="#games">Игры</a>
+    <a href="#prices">Цены</a>
+    <a href="#info">Контакты</a>
+  </div>
+  <a href="#prices" class="nav-cta">Забронировать</a>
+  <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <div class="hero-grid" aria-hidden="true"></div>
+
+  <!-- low-poly figure (signature) -->
+  <svg class="hero-fig" viewBox="0 0 420 760" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="r1" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ff2330"/><stop offset="1" stop-color="#5e0307"/>
+      </linearGradient>
+      <linearGradient id="r2" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#9c0a12"/><stop offset="1" stop-color="#2a0204"/>
+      </linearGradient>
+    </defs>
+    <!-- torso facets -->
+    <polygon points="150,760 110,560 210,470 300,540 290,760" fill="url(#r2)" opacity=".9"/>
+    <polygon points="210,470 300,540 330,470 270,400" fill="#7a0a10" opacity=".85"/>
+    <polygon points="110,560 210,470 150,410 90,470" fill="#3a0306" opacity=".9"/>
+    <polygon points="150,410 210,470 270,400 215,360" fill="#8b0d14" opacity=".9"/>
+    <polygon points="90,470 150,410 130,560" fill="#56060b" opacity=".85"/>
+    <!-- shoulders -->
+    <polygon points="55,560 110,470 150,410 130,560" fill="#2a0204"/>
+    <polygon points="330,470 360,580 290,540" fill="#46050a"/>
+    <!-- neck -->
+    <polygon points="180,360 215,360 230,300 170,300" fill="#6e0810"/>
+    <!-- head -->
+    <polygon points="170,300 230,300 245,240 200,210 160,240" fill="url(#r1)"/>
+    <polygon points="160,240 200,210 175,160 150,205" fill="#b00f18"/>
+    <polygon points="200,210 245,240 255,180 215,150" fill="#7a0a10"/>
+    <polygon points="175,160 200,210 215,150 195,120" fill="#e60815"/>
+    <polygon points="150,205 175,160 195,120 145,150" fill="#5e0307"/>
+    <!-- VR headset -->
+    <polygon points="145,205 255,200 260,150 140,155" fill="#0d0d10" stroke="#ff2330" stroke-width="2"/>
+    <polygon points="145,205 200,210 200,160 150,160" fill="#1a0204"/>
+    <polygon points="200,210 255,200 255,160 200,160" fill="#120203"/>
+    <rect x="160" y="172" width="34" height="14" rx="2" fill="#ff2330" opacity=".55"/>
+    <rect x="208" y="172" width="34" height="14" rx="2" fill="#ff2330" opacity=".55"/>
+    <!-- strap -->
+    <polygon points="140,155 260,150 258,140 142,145" fill="#5e0307"/>
+    <!-- arms / hands forward -->
+    <polygon points="55,560 130,560 110,690 40,640" fill="#34050a" opacity=".9"/>
+    <polygon points="40,640 110,690 95,740 30,720" fill="#1f0204"/>
+    <polygon points="360,580 290,540 290,700 350,700" fill="#2a0306" opacity=".85"/>
+  </svg>
+
+  <div class="wrap hero-inner">
+    <p class="eyebrow reveal">Виртуальная реальность · Meta Quest</p>
+    <h1 class="title reveal">
+      <span class="l1">VR клуб</span>
+      <span class="l2 scan">ГАЛО</span>
+    </h1>
+    <p class="lede reveal">Надеваешь шлем — и города больше нет. <b>Meta Quest 2 и Quest 3</b>, сотни игр, сессии от 30 минут. Без выходных.</p>
+    <div class="hero-cta reveal">
+      <a href="#prices" class="btn btn-primary">Забронировать сеанс
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#games" class="btn btn-ghost">Что поиграть</a>
+    </div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-row">
+    <span>QUEST&nbsp;3 <i>4K</i></span><span>BEAT&nbsp;SABER</span><span><i>·</i></span>
+    <span>HALF-LIFE: ALYX</span><span>SUPERHOT&nbsp;VR</span><span><i>·</i></span>
+    <span>БЕЗ&nbsp;ВЫХОДНЫХ</span><span>ОТ&nbsp;<i>300&nbsp;₽</i></span><span><i>·</i></span>
+    <span>QUEST&nbsp;3 <i>4K</i></span><span>BEAT&nbsp;SABER</span><span><i>·</i></span>
+    <span>HALF-LIFE: ALYX</span><span>SUPERHOT&nbsp;VR</span><span><i>·</i></span>
+    <span>БЕЗ&nbsp;ВЫХОДНЫХ</span><span>ОТ&nbsp;<i>300&nbsp;₽</i></span><span><i>·</i></span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="block" id="about">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <p class="sec-tag">01 — о клубе</p>
+        <h2 class="sec-title">Пришёл. Надел.<br><em>Пропал в игре.</em></h2>
+      </div>
+      <p class="sec-note">Не нужно ничего покупать и настраивать. Шлем, контроллеры, площадка — всё готово.</p>
+    </div>
+    <div class="feat-grid reveal">
+      <div class="feat">
+        <span class="num">/ 01</span>
+        <h3>Свежее железо</h3>
+        <p>Meta Quest 2 и Quest 3. Чёткая картинка, никаких проводов и привязки к компьютеру.</p>
+      </div>
+      <div class="feat">
+        <span class="num">/ 02</span>
+        <h3>Игр под сотню</h3>
+        <p>Ритм-игры, шутеры, хорроры, симуляторы. Подберём под компанию и настроение.</p>
+      </div>
+      <div class="feat">
+        <span class="num">/ 03</span>
+        <h3>Свободная зона</h3>
+        <p>Размеченная площадка — двигаешься в полный рост, а не сидишь на месте.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section class="block" id="games" style="padding-top:20px">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <p class="sec-tag">02 — библиотека</p>
+        <h2 class="sec-title">Во что <em>играем</em></h2>
+      </div>
+      <p class="sec-note">Подборка хитов. Полный список — на месте у администратора.</p>
+    </div>
+    <div class="games">
+      <div class="game reveal">
+        <span class="g-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 8l5 8 3-5 3 5 5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="g-meta"><span class="g-tag">Ритм</span><h3>Beat Saber</h3><p>Руби кубы под бит двумя мечами.</p></div>
+      </div>
+      <div class="game reveal">
+        <span class="g-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg></span>
+        <div class="g-meta"><span class="g-tag">Шутер</span><h3>Half-Life: Alyx</h3><p>Легендарный сюжетный VR-боевик.</p></div>
+      </div>
+      <div class="game reveal">
+        <span class="g-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2l9 5v10l-9 5-9-5V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+        <div class="g-meta"><span class="g-tag">Экшен</span><h3>Superhot VR</h3><p>Время идёт, только когда движешься ты.</p></div>
+      </div>
+      <div class="game reveal">
+        <span class="g-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="g-meta"><span class="g-tag">Хоррор</span><h3>Five Nights / VR</h3><p>Не для слабонервных. Точно.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICES -->
+<section class="block" id="prices">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <p class="sec-tag">03 — тарифы</p>
+        <h2 class="sec-title">Цены за <em>сессию</em></h2>
+      </div>
+      <p class="sec-note">Стоимость за один шлем. Чем дольше — тем выгоднее за минуту.</p>
+    </div>
+    <div class="price-grid">
+      <!-- QUEST 2 -->
+      <div class="price-card reveal">
+        <div class="price-head">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none"><rect x="6" y="14" width="36" height="20" rx="9" stroke="currentColor" stroke-width="2.4"/><path d="M18 24h12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M6 22l-3 2 3 2M42 22l3 2-3 2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><div class="ph-name">Quest 2</div><div class="ph-sub">базовый шлем · отличный старт</div></div>
+        </div>
+        <div class="price-rows">
+          <div class="prow"><span class="dur">30 минут</span><span class="cost">300 <small>₽</small></span></div>
+          <div class="prow"><span class="dur">45 минут</span><span class="cost">400 <small>₽</small></span></div>
+          <div class="prow"><span class="dur">60 минут</span><span class="cost">500 <small>₽</small></span></div>
+        </div>
+        <div class="price-foot"><a href="#info" class="btn btn-ghost">Выбрать Quest 2</a></div>
+      </div>
+      <!-- QUEST 3 -->
+      <div class="price-card featured reveal">
+        <div class="price-head">
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none"><rect x="6" y="14" width="36" height="20" rx="9" stroke="currentColor" stroke-width="2.4"/><circle cx="17" cy="24" r="3.4" stroke="currentColor" stroke-width="2.4"/><circle cx="31" cy="24" r="3.4" stroke="currentColor" stroke-width="2.4"/><path d="M6 22l-3 2 3 2M42 22l3 2-3 2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><div class="ph-name">Quest 3</div><div class="ph-sub">мощнее · резче · новее</div></div>
+        </div>
+        <div class="price-rows">
+          <div class="prow"><span class="dur">30 минут</span><span class="cost">400 <small>₽</small></span></div>
+          <div class="prow"><span class="dur">45 минут</span><span class="cost">500 <small>₽</small></span></div>
+          <div class="prow"><span class="dur">60 минут</span><span class="cost">600 <small>₽</small></span></div>
+        </div>
+        <div class="price-foot"><a href="#info" class="btn btn-primary" style="width:100%;justify-content:center">Выбрать Quest 3</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOURS + CONTACTS -->
+<section class="block" id="info" style="padding-top:20px">
+  <div class="wrap">
+    <div class="split">
+      <!-- HOURS -->
+      <div class="panel-card reveal">
+        <span class="corner"></span>
+        <p class="hours-label">Время работы</p>
+        <div class="hours-big">ПН — ВС<em>10:00 — 19:00</em></div>
+        <div class="hours-row"><span class="live"></span><span id="open-status">Работаем без выходных</span></div>
+      </div>
+      <!-- CONTACTS -->
+      <div class="panel-card reveal">
+        <span class="corner"></span>
+        <p class="hours-label">Как нас найти</p>
+        <ul class="contact-list">
+          <li>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.6" stroke="currentColor" stroke-width="2"/></svg>
+            <div><div class="c-k">Адрес</div><span class="c-v">ул. Примерная, 1 · ТЦ «Название»</span></div>
+          </li>
+          <li>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a13 13 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            <div><div class="c-k">Телефон</div><a href="tel:+70000000000" class="c-v">+7 (___) ___-__-__</a></div>
+          </li>
+          <li>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 5L2 12l6 2 2 6 3-4 5 4 3-15z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            <div><div class="c-k">Telegram · бронь</div><a href="#" class="c-v">@galo_vr</a></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="cta-band">
+  <div class="scan-bg scan" aria-hidden="true">ГАЛО</div>
+  <div class="wrap cta-inner reveal">
+    <h2>Реальность <em>переоценена</em></h2>
+    <p>Забронируй шлем заранее, чтобы не ждать. Напиши в Telegram или позвони — посадим в удобное время.</p>
+    <a href="#" class="btn btn-primary">Написать в Telegram
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 5L2 12l6 2 2 6 3-4 5 4 3-15z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <a href="#top" class="brand"><span class="dot"></span>VR&nbsp;<b>ГАЛО</b></a>
+      <div class="foot-links">
+        <a href="#about">О клубе</a>
+        <a href="#games">Игры</a>
+        <a href="#prices">Цены</a>
+        <a href="#info">Контакты</a>
+      </div>
+    </div>
+    <div class="copy">© <span id="year"></span> VR клуб ГАЛО. Виртуальная реальность для всех. Цены указаны за один шлем.</div>
+  </div>
+</footer>
+
+<script>
+  // year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // burger
+  const nav = document.getElementById('nav');
+  document.getElementById('burger').addEventListener('click', () => nav.classList.toggle('open'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+
+  // reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:.14 });
+  document.querySelectorAll('.reveal').forEach((el,i) => { el.style.transitionDelay = (i%5*60)+'ms'; io.observe(el); });
+
+  // open / closed status by local time
+  (function(){
+    const h = new Date().getHours();
+    const open = h >= 10 && h < 19;
+    const el = document.getElementById('open-status');
+    if (!open){ el.textContent = 'Сейчас закрыто · откроемся в 10:00'; }
+  })();
+</script>
+</body>
+</html>
