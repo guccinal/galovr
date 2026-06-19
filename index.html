@@ -223,30 +223,27 @@
   /* фото игры — фон карточки (добавляются вручную в /games) */
   .game .g-img{
     position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
-    filter:saturate(.92) contrast(1.05);transition:transform .45s ease;
+    filter:saturate(.95) contrast(1.04);
   }
-  .game:hover .g-img{transform:scale(1.05)}
-  /* затемнение снизу + лёгкий красный фоллбэк, если фото ещё нет */
+  /* виньетка по краям + затемнение снизу + красный фоллбэк, если фото нет */
   .game::before{
     content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
     background:
       radial-gradient(circle at 50% 22%,rgba(94,3,7,.5),transparent 62%),
-      linear-gradient(180deg,transparent 26%,rgba(4,4,4,.55) 60%,rgba(4,4,4,.95) 100%);
+      radial-gradient(circle at 50% 44%,transparent 56%,rgba(0,0,0,.55) 100%),
+      linear-gradient(180deg,transparent 32%,rgba(4,4,4,.5) 64%,rgba(4,4,4,.94) 100%);
   }
-  /* фирменные красные полоски ПОВЕРХ картинки */
+  /* фирменные красные полоски ПОВЕРХ картинки — тоньше, картинку видно лучше */
   .game::after{
     content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
     background:repeating-linear-gradient(
       0deg,
       transparent 0,
-      transparent 3px,
-      rgba(230,8,21,.22) 3px,
-      rgba(230,8,21,.22) 5px
+      transparent 4px,
+      rgba(230,8,21,.26) 4px,
+      rgba(230,8,21,.26) 5px
     );
-    opacity:.92;transition:opacity .3s;
   }
-  .game:hover{border-color:var(--red);transform:translateY(-4px)}
-  .game:hover::after{opacity:1}
   .game .g-meta{position:relative;z-index:3}
   .game .g-tag{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:.68rem;letter-spacing:.2em;color:var(--red-bright);font-weight:600;text-shadow:0 0 8px rgba(230,8,21,.55)}
   .game h3{font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:700;font-size:1.16rem;margin-top:6px;line-height:1.02;text-shadow:0 2px 12px rgba(0,0,0,.9)}
