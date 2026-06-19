@@ -165,6 +165,18 @@
   .btn-primary:hover{background:var(--red-bright);box-shadow:0 0 34px var(--glow);transform:translateY(-2px)}
   .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
   .btn-ghost:hover{border-color:var(--red);color:var(--red)}
+  /* messenger buttons — Макс фиолетовый, Telegram синий */
+  .btn-max{
+    background:#7c3aed;color:#fff;
+    clip-path:polygon(0 0,100% 0,100% 68%,calc(100% - 16px) 100%,0 100%);
+  }
+  .btn-max:hover{background:#8b5cf6;box-shadow:0 0 34px rgba(124,58,237,.6);transform:translateY(-2px)}
+  .btn-tg{
+    background:#229ed9;color:#fff;
+    clip-path:polygon(0 0,100% 0,100% 68%,calc(100% - 16px) 100%,0 100%);
+  }
+  .btn-tg:hover{background:#2aabee;box-shadow:0 0 34px rgba(34,158,217,.6);transform:translateY(-2px)}
+  .cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
   /* ===== ticker ===== */
   .ticker{
@@ -202,23 +214,43 @@
   .feat p{color:var(--muted);font-size:.96rem}
 
   /* ===== games ===== */
-  .games{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .games{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   .game{
     position:relative;border:1px solid var(--line);background:var(--void-2);
     aspect-ratio:3/4;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;
     padding:22px;transition:.3s;
   }
+  /* фото игры — фон карточки (добавляются вручную в /games) */
+  .game .g-img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+    filter:saturate(.92) contrast(1.05);transition:transform .45s ease;
+  }
+  .game:hover .g-img{transform:scale(1.05)}
+  /* затемнение снизу + лёгкий красный фоллбэк, если фото ещё нет */
   .game::before{
-    content:"";position:absolute;inset:0;z-index:0;opacity:.5;transition:.3s;
-    background:radial-gradient(circle at 50% 25%,var(--red-deep),transparent 60%);
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 22%,rgba(94,3,7,.5),transparent 62%),
+      linear-gradient(180deg,transparent 26%,rgba(4,4,4,.55) 60%,rgba(4,4,4,.95) 100%);
+  }
+  /* фирменные красные полоски ПОВЕРХ картинки */
+  .game::after{
+    content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 3px,
+      rgba(230,8,21,.22) 3px,
+      rgba(230,8,21,.22) 5px
+    );
+    opacity:.92;transition:opacity .3s;
   }
   .game:hover{border-color:var(--red);transform:translateY(-4px)}
-  .game:hover::before{opacity:1}
-  .game .g-ico{position:absolute;top:20px;left:20px;z-index:1;color:var(--red);opacity:.85}
-  .game .g-meta{position:relative;z-index:1}
-  .game .g-tag{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:.68rem;letter-spacing:.2em;color:var(--red);font-weight:500}
-  .game h3{font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:700;font-size:1.35rem;margin-top:6px;line-height:1}
-  .game p{color:var(--muted);font-size:.84rem;margin-top:8px}
+  .game:hover::after{opacity:1}
+  .game .g-meta{position:relative;z-index:3}
+  .game .g-tag{font-family:'Oswald',sans-serif;text-transform:uppercase;font-size:.68rem;letter-spacing:.2em;color:var(--red-bright);font-weight:600;text-shadow:0 0 8px rgba(230,8,21,.55)}
+  .game h3{font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:700;font-size:1.16rem;margin-top:6px;line-height:1.02;text-shadow:0 2px 12px rgba(0,0,0,.9)}
+  .game p{color:#d9d0d1;font-size:.82rem;margin-top:8px;text-shadow:0 1px 8px rgba(0,0,0,.85)}
 
   /* ===== prices ===== */
   .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
@@ -328,7 +360,7 @@
     <a href="#prices">Цены</a>
     <a href="#info">Контакты</a>
   </div>
-  <a href="#prices" class="nav-cta">Забронировать</a>
+  <a href="https://max.ru/u/f9LHodD0cOJYxf0tgPeyA_82S9C8D2r509de9Oe3rDaoBWfZ4l-ixCocdl0" target="_blank" rel="noopener noreferrer" class="nav-cta">Забронировать</a>
   <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
 </nav>
 
@@ -385,7 +417,7 @@
     </h1>
     <p class="lede reveal">Надеваешь шлем — и города больше нет. <b>Meta Quest 2 и Quest 3</b>, сотни игр, сессии от 30 минут. Без выходных.</p>
     <div class="hero-cta reveal">
-      <a href="#prices" class="btn btn-primary">Забронировать сеанс
+      <a href="https://max.ru/u/f9LHodD0cOJYxf0tgPeyA_82S9C8D2r509de9Oe3rDaoBWfZ4l-ixCocdl0" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Забронировать сеанс
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <a href="#games" class="btn btn-ghost">Что поиграть</a>
@@ -396,11 +428,11 @@
 <!-- TICKER -->
 <div class="ticker" aria-hidden="true">
   <div class="ticker-row">
-    <span>QUEST&nbsp;3 <i>4K</i></span><span>BEAT&nbsp;SABER</span><span><i>·</i></span>
-    <span>HALF-LIFE: ALYX</span><span>SUPERHOT&nbsp;VR</span><span><i>·</i></span>
+    <span>QUEST&nbsp;3 <i>4K</i></span><span>GORN</span><span><i>·</i></span>
+    <span>SUPERHOT</span><span>BONELAB</span><span><i>·</i></span>
     <span>БЕЗ&nbsp;ВЫХОДНЫХ</span><span>ОТ&nbsp;<i>300&nbsp;₽</i></span><span><i>·</i></span>
-    <span>QUEST&nbsp;3 <i>4K</i></span><span>BEAT&nbsp;SABER</span><span><i>·</i></span>
-    <span>HALF-LIFE: ALYX</span><span>SUPERHOT&nbsp;VR</span><span><i>·</i></span>
+    <span>QUEST&nbsp;3 <i>4K</i></span><span>GORN</span><span><i>·</i></span>
+    <span>SUPERHOT</span><span>BONELAB</span><span><i>·</i></span>
     <span>БЕЗ&nbsp;ВЫХОДНЫХ</span><span>ОТ&nbsp;<i>300&nbsp;₽</i></span><span><i>·</i></span>
   </div>
 </div>
@@ -447,20 +479,40 @@
     </div>
     <div class="games">
       <div class="game reveal">
-        <span class="g-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 8l5 8 3-5 3 5 5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <div class="g-meta"><span class="g-tag">Ритм</span><h3>Beat Saber</h3><p>Руби кубы под бит двумя мечами.</p></div>
+        <img class="g-img" src="games/fnaf-help-wanted.png" alt="Five Nights at Freddy's: Help Wanted" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Хоррор</span><h3>FNaF: Help Wanted</h3><p>Аниматроники в VR. Не для слабонервных.</p></div>
       </div>
       <div class="game reveal">
-        <span class="g-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/></svg></span>
-        <div class="g-meta"><span class="g-tag">Шутер</span><h3>Half-Life: Alyx</h3><p>Легендарный сюжетный VR-боевик.</p></div>
+        <img class="g-img" src="games/gorn.png" alt="GORN" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Файтинг</span><h3>GORN</h3><p>Брутальные гладиаторские бои.</p></div>
       </div>
       <div class="game reveal">
-        <span class="g-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2l9 5v10l-9 5-9-5V7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
-        <div class="g-meta"><span class="g-tag">Экшен</span><h3>Superhot VR</h3><p>Время идёт, только когда движешься ты.</p></div>
+        <img class="g-img" src="games/bonelab.png" alt="BONELAB" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Песочница</span><h3>BONELAB</h3><p>Физика, оружие, эксперименты.</p></div>
       </div>
       <div class="game reveal">
-        <span class="g-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 17l6-6 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <div class="g-meta"><span class="g-tag">Хоррор</span><h3>Five Nights / VR</h3><p>Не для слабонервных. Точно.</p></div>
+        <img class="g-img" src="games/job-simulator.png" alt="Job Simulator" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Симулятор</span><h3>Job Simulator</h3><p>Работа мечты в шуточном мире.</p></div>
+      </div>
+      <div class="game reveal">
+        <img class="g-img" src="games/fruit-ninja.png" alt="Fruit Ninja VR" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Аркада</span><h3>Fruit Ninja</h3><p>Руби фрукты взмахами рук.</p></div>
+      </div>
+      <div class="game reveal">
+        <img class="g-img" src="games/i-am-security.png" alt="I Am Security" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Хоррор</span><h3>I Am Security</h3><p>Ночная смена с аниматрониками.</p></div>
+      </div>
+      <div class="game reveal">
+        <img class="g-img" src="games/Thrill-of-the-Fight-header.png" alt="The Thrill Of The Fight" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Бокс</span><h3>Thrill Of The Fight</h3><p>Настоящий бокс. Реальная усталость.</p></div>
+      </div>
+      <div class="game reveal">
+        <img class="g-img" src="games/superhot.png" alt="SUPERHOT VR" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Экшен</span><h3>SUPERHOT</h3><p>Время идёт, только когда движешься.</p></div>
+      </div>
+      <div class="game reveal">
+        <img class="g-img" src="games/eleven-table-tennis.jpg" alt="Eleven Table Tennis" loading="lazy" onerror="this.style.display='none'">
+        <div class="g-meta"><span class="g-tag">Спорт</span><h3>Eleven Table Tennis</h3><p>Настольный теннис как в жизни.</p></div>
       </div>
     </div>
   </div>
@@ -488,7 +540,7 @@
           <div class="prow"><span class="dur">45 минут</span><span class="cost">400 <small>₽</small></span></div>
           <div class="prow"><span class="dur">60 минут</span><span class="cost">500 <small>₽</small></span></div>
         </div>
-        <div class="price-foot"><a href="#info" class="btn btn-ghost">Выбрать Quest 2</a></div>
+        <div class="price-foot"><a href="https://max.ru/u/f9LHodD0cOJYxf0tgPeyA_82S9C8D2r509de9Oe3rDaoBWfZ4l-ixCocdl0" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">Выбрать Quest 2</a></div>
       </div>
       <!-- QUEST 3 -->
       <div class="price-card featured reveal">
@@ -501,7 +553,7 @@
           <div class="prow"><span class="dur">45 минут</span><span class="cost">500 <small>₽</small></span></div>
           <div class="prow"><span class="dur">60 минут</span><span class="cost">600 <small>₽</small></span></div>
         </div>
-        <div class="price-foot"><a href="#info" class="btn btn-primary" style="width:100%;justify-content:center">Выбрать Quest 3</a></div>
+        <div class="price-foot"><a href="https://max.ru/u/f9LHodD0cOJYxf0tgPeyA_82S9C8D2r509de9Oe3rDaoBWfZ4l-ixCocdl0" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width:100%;justify-content:center">Выбрать Quest 3</a></div>
       </div>
     </div>
   </div>
@@ -525,15 +577,15 @@
         <ul class="contact-list">
           <li>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.6" stroke="currentColor" stroke-width="2"/></svg>
-            <div><div class="c-k">Адрес</div><span class="c-v">ул. Примерная, 1 · ТЦ «Название»</span></div>
+            <div><div class="c-k">Адрес</div><a href="https://yandex.ru/maps/?text=Тюмень,+Воронинская+улица,+45" target="_blank" rel="noopener noreferrer" class="c-v">г. Тюмень, Воронинская ул., 45</a></div>
           </li>
           <li>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-3 2a13 13 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-            <div><div class="c-k">Телефон</div><a href="tel:+70000000000" class="c-v">+7 (___) ___-__-__</a></div>
+            <div><div class="c-k">Телефон</div><a href="tel:+79123827396" class="c-v">+7 912 382-73-96</a></div>
           </li>
           <li>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 5L2 12l6 2 2 6 3-4 5 4 3-15z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-            <div><div class="c-k">Telegram · бронь</div><a href="#" class="c-v">@galo_vr</a></div>
+            <div><div class="c-k">Макс · бронь</div><a href="https://max.ru/u/f9LHodD0cOJYxf0tgPeyA_82S9C8D2r509de9Oe3rDaoBWfZ4l-ixCocdl0" target="_blank" rel="noopener noreferrer" class="c-v">Написать в мессенджере</a></div>
           </li>
         </ul>
       </div>
@@ -546,10 +598,15 @@
   <div class="scan-bg scan" aria-hidden="true">ГАЛО</div>
   <div class="wrap cta-inner reveal">
     <h2>Реальность <em>переоценена</em></h2>
-    <p>Забронируй шлем заранее, чтобы не ждать. Напиши в Telegram или позвони — посадим в удобное время.</p>
-    <a href="#" class="btn btn-primary">Написать в Telegram
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 5L2 12l6 2 2 6 3-4 5 4 3-15z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
-    </a>
+    <p>Забронируй шлем заранее, чтобы не ждать. Напиши в Макс или позвони — посадим в удобное время.</p>
+    <div class="cta-btns">
+      <a href="https://max.ru/u/f9LHodD0cOJYxf0tgPeyA_82S9C8D2r509de9Oe3rDaoBWfZ4l-ixCocdl0" target="_blank" rel="noopener noreferrer" class="btn btn-max">Написать в Макс
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.5L3 21l2-5.5A8.5 8.5 0 1 1 21 11.5z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="https://t.me/Sanyachouz" target="_blank" rel="noopener noreferrer" class="btn btn-tg">Написать в Telegram
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 5L2 12l6 2 2 6 3-4 5 4 3-15z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
   </div>
 </section>
 
