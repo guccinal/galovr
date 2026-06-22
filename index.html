@@ -72,17 +72,23 @@
     position:relative;
     display:inline-block;
     text-shadow:0 0 28px rgba(230,8,21,.35);
+    overflow:hidden; /* полоски не вылезают за границы буквы */
   }
   .scan::after{
-    content:"";position:absolute;inset:-2% -1%;pointer-events:none;
+    content:"";position:absolute;
+    inset:0 -1% -1%; /* убрал -2% сверху */
+    pointer-events:none;
     background:repeating-linear-gradient(
       0deg,
       transparent 0,
       transparent 3px,
-      rgba(4,4,4,.92) 3px,
-      rgba(4,4,4,.92) 6px
+      rgba(4,4,4,.90) 3px,
+      rgba(4,4,4,.90) 6px
     );
   }
+  /* VR КЛУБ выше слоя полосок ГАЛО */
+  h1.title .l1{position:relative;z-index:2}
+  h1.title .l2{line-height:.78}
 
   .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
 
@@ -165,7 +171,7 @@
   .btn-primary:hover{background:var(--red-bright);box-shadow:0 0 34px var(--glow);transform:translateY(-2px)}
   .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
   .btn-ghost:hover{border-color:var(--red);color:var(--red)}
-  /* messenger buttons — Макс фиолетовый, Telegram синий */
+  /* Макс — фиолетовый, Telegram — синий */
   .btn-max{
     background:#7c3aed;color:#fff;
     clip-path:polygon(0 0,100% 0,100% 68%,calc(100% - 16px) 100%,0 100%);
@@ -178,18 +184,8 @@
   .btn-tg:hover{background:#2aabee;box-shadow:0 0 34px rgba(34,158,217,.6);transform:translateY(-2px)}
   .cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
-  /* ===== ticker ===== */
-  .ticker{
-    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-    background:var(--void-2);overflow:hidden;white-space:nowrap;padding:14px 0;
-  }
-  .ticker-row{display:inline-block;animation:slide 26s linear infinite}
-  .ticker-row span{
-    font-family:'Oswald',sans-serif;text-transform:uppercase;font-weight:600;
-    letter-spacing:.16em;font-size:.92rem;color:var(--muted);margin:0 26px;
-  }
-  .ticker-row span i{color:var(--red);font-style:normal}
-  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  /* ticker removed */
+
 
   /* ===== section frame ===== */
   section.block{padding:120px 0;position:relative}
@@ -218,14 +214,13 @@
   .game{
     position:relative;border:1px solid var(--line);background:var(--void-2);
     aspect-ratio:3/4;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;
-    padding:22px;transition:.3s;
+    padding:22px;
   }
-  /* фото игры — фон карточки (добавляются вручную в /games) */
   .game .g-img{
     position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
     filter:saturate(.95) contrast(1.04);
   }
-  /* виньетка по краям + затемнение снизу + красный фоллбэк, если фото нет */
+  /* виньетка + затемнение снизу */
   .game::before{
     content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
     background:
@@ -233,7 +228,7 @@
       radial-gradient(circle at 50% 44%,transparent 56%,rgba(0,0,0,.55) 100%),
       linear-gradient(180deg,transparent 32%,rgba(4,4,4,.5) 64%,rgba(4,4,4,.94) 100%);
   }
-  /* фирменные красные полоски ПОВЕРХ картинки — тоньше, картинку видно лучше */
+  /* красные полоски поверх */
   .game::after{
     content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
     background:repeating-linear-gradient(
@@ -257,9 +252,9 @@
   }
   .price-card.featured{border-color:var(--red)}
   .price-card.featured::after{
-    content:"ХИТ";position:absolute;top:26px;right:-34px;transform:rotate(45deg);
+    content:"ХИТ";position:absolute;top:18px;right:-26px;transform:rotate(45deg);
     background:var(--red);color:#000;font-family:'Oswald',sans-serif;font-weight:700;
-    font-size:.72rem;letter-spacing:.2em;padding:5px 40px;
+    font-size:.72rem;letter-spacing:.2em;padding:5px 44px;z-index:1;
   }
   .price-head{padding:30px 34px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px}
   .price-head svg{color:var(--red);flex-shrink:0}
@@ -336,6 +331,8 @@
     .sec-head{flex-direction:column;align-items:flex-start}
     section.block{padding:84px 0}
     .lede{max-width:none}
+    /* игры — 1 колонка на мобилке */
+    .games{grid-template-columns:1fr}
   }
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
@@ -422,17 +419,8 @@
   </div>
 </header>
 
-<!-- TICKER -->
-<div class="ticker" aria-hidden="true">
-  <div class="ticker-row">
-    <span>QUEST&nbsp;3 <i>4K</i></span><span>GORN</span><span><i>·</i></span>
-    <span>SUPERHOT</span><span>BONELAB</span><span><i>·</i></span>
-    <span>БЕЗ&nbsp;ВЫХОДНЫХ</span><span>ОТ&nbsp;<i>300&nbsp;₽</i></span><span><i>·</i></span>
-    <span>QUEST&nbsp;3 <i>4K</i></span><span>GORN</span><span><i>·</i></span>
-    <span>SUPERHOT</span><span>BONELAB</span><span><i>·</i></span>
-    <span>БЕЗ&nbsp;ВЫХОДНЫХ</span><span>ОТ&nbsp;<i>300&nbsp;₽</i></span><span><i>·</i></span>
-  </div>
-</div>
+
+
 
 <!-- ABOUT -->
 <section class="block" id="about">
@@ -476,7 +464,7 @@
     </div>
     <div class="games">
       <div class="game reveal">
-        <img class="g-img" src="games/fnaf-help-wanted.png" alt="Five Nights at Freddy's: Help Wanted" loading="lazy" onerror="this.style.display='none'">
+        <img class="g-img" src="games/fnaf-help-wanted.png" alt="FNaF: Help Wanted" loading="lazy" onerror="this.style.display='none'">
         <div class="g-meta"><span class="g-tag">Хоррор</span><h3>FNaF: Help Wanted</h3><p>Аниматроники в VR. Не для слабонервных.</p></div>
       </div>
       <div class="game reveal">
@@ -497,10 +485,10 @@
       </div>
       <div class="game reveal">
         <img class="g-img" src="games/i-am-security.png" alt="I Am Security" loading="lazy" onerror="this.style.display='none'">
-        <div class="g-meta"><span class="g-tag">Хоррор</span><h3>I Am Security</h3><p>Стань вышибалой в ночном клубе.</p></div>
+        <div class="g-meta"><span class="g-tag">Хоррор</span><h3>I Am Security</h3><p>Ночная смена с аниматрониками.</p></div>
       </div>
       <div class="game reveal">
-        <img class="g-img" src="games/Thrill-of-the-Fight-header.png" alt="The Thrill Of The Fight" loading="lazy" onerror="this.style.display='none'">
+        <img class="g-img" src="games/Thrill-of-the-Fight-header.png" alt="Thrill Of The Fight" loading="lazy" onerror="this.style.display='none'">
         <div class="g-meta"><span class="g-tag">Бокс</span><h3>Thrill Of The Fight</h3><p>Настоящий бокс. Реальная усталость.</p></div>
       </div>
       <div class="game reveal">
@@ -581,7 +569,7 @@
             <div><div class="c-k">Телефон</div><a href="tel:+79123827396" class="c-v">+7 912 382-73-96</a></div>
           </li>
           <li>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 5L2 12l6 2 2 6 3-4 5 4 3-15z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.5 8.5 0 0 1-12.5 7.5L3 21l2-5.5A8.5 8.5 0 1 1 21 11.5z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
             <div><div class="c-k">Макс · бронь</div><a href="https://max.ru/u/f9LHodD0cOJYxf0tgPeyA_82S9C8D2r509de9Oe3rDaoBWfZ4l-ixCocdl0" target="_blank" rel="noopener noreferrer" class="c-v">Написать в мессенджере</a></div>
           </li>
         </ul>
